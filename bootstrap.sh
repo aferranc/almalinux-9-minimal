@@ -562,6 +562,17 @@ function cmcreateiso() {
       out="CentOS-${ver}-x86_64-minimal.iso"
    fi
    echo " ~ Creating ISO image"
+
+    echo '= mod bootloader start'
+
+
+    set -e
+    cp ks.cfg ${dp}/isolinux/
+    sed -i '/linuxefi/s@$@ inst.ks=hd:LABEL='$lbl':/isolinux/ks.cfg@' ${dp}/EFI/BOOT/grub.cfg
+    sed -i '/initrd=initrd.img/s@$@ inst.ks=hd:LABEL='$lbl':/isolinux/ks.cfg@'  ${dp}/isolinux/isolinux.cfg
+    set +e
+    echo '= mod bootloader end'
+   
    cd "${dp}"
    chmod 664 isolinux/isolinux.bin
    rm -f "${pw}/${out}"
