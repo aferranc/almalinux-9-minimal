@@ -12,7 +12,8 @@
 # Default values
 #
 # default official ISO to use
-iso="CentOS-8.1.1911-x86_64-boot.iso"
+#iso="CentOS-8.1.1911-x86_64-boot.iso"
+iso="CentOS-8.5.2111-x86_64-dvd1.iso"
 #
 # resulting ISO file name and volume label
 # such values will be determined again according to source image during ISO mount
