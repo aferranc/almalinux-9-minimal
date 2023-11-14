@@ -1,24 +1,22 @@
 #!/bin/bash
-# 2019'10, gokhan@kylone.com
-
 #
 # Evironment variables
 #
 #    CMVERBOSE  : increase verbosity (set any value)
-#    CMISO      : official ISO to use (i.e. CentOS-8.1.1911-x86_64-boot.iso)
-#    CMOUT      : resultig ISO file name (i.e. CentOS-8.1.1911-x86_64-minimal.iso)
+#    CMISO      : official ISO to use (i.e. AlmaLinux-9.1-x86_64-boot.iso)
+#    CMOUT      : resultig ISO file name (i.e. AlmaLinux-9.1-x86_64-minimal.iso)
 #    CMETH      : dependency resolving method to use (deep or fast)
 #
 # Default values
 #
 # default official ISO to use
-#iso="CentOS-8.1.1911-x86_64-boot.iso"
-iso="CentOS-8.5.2111-x86_64-dvd1.iso"
+iso="AlmaLinux-9.1-x86_64-boot.iso"
+#iso="AlmaLinux-9.1-x86_64-dvd.iso"
 #
 # resulting ISO file name and volume label
 # such values will be determined again according to source image during ISO mount
-out="CentOS-8.1.1911-x86_64-minimal.iso"
-lbl="CentOS-8-1-1911-x86_64"
+out="AlmaLinux-9.1-x86_64-minimal.iso"
+lbl="AlmaLinux-9-1-x86_64"
 #
 # dependency resolving method
 # deep: check dependency of every package one by one
@@ -58,7 +56,7 @@ function cmusagestep() {
    exit 1
 }
 
-function cmnotcentos() {
+function cmnotrhel() {
    echo
    echo " ! This script is not suitable to use in this platform"
    echo
@@ -91,7 +89,7 @@ function cmdot() {
 
 function cmisounmount() {
    if [ -d "${md}" ]; then
-      echo -n " ~ unmount ISO .."
+      echo -n " ~ Unmount ISO .."
       umount "${md}" 2>/dev/null
       rmdir "${md}"
       echo " done"
@@ -103,8 +101,8 @@ function cmisomount() {
       echo
       echo " ! Reference ISO (${iso}) not found."
       echo
-      echo "   You can download CentOS 8 from following resource;"
-      echo "   http://isoredirect.centos.org/centos/8/isos/x86_64/"
+      echo "   You can download AlmaLinux 9 from following resource;"
+      echo "   https://repo.almalinux.org/vault/9.1/isos/x86_64/"
       echo
       echo "   If you want to use different minor release, please"
       echo "   specify it like below;"
@@ -114,16 +112,16 @@ function cmisomount() {
       exit 1
    fi
    cmisounmount
-   echo " ~ mount ISO "
+   echo " ~ Mount ISO "
    if [ ! -d "${md}" ]; then
       mkdir -p "${md}"
       mount -o loop "${iso}" "${md}" 2>&1 | cmpipe
       cmcheck
       echo "   ${md} mounted"
-      if [ "$(cat "${md}/isolinux/isolinux.cfg" | grep "CentOS Linux 8")" == "" ]; then
+      if [ "$(cat "${md}/isolinux/isolinux.cfg" | grep "AlmaLinux 9")" == "" ]; then
          cmisounmount
          echo
-         echo " ! Reference ISO should be one of the CentOS 8 distribution."
+         echo " ! Reference ISO should be one of the AlmaLinux 9 distribution."
          echo
          exit
       fi
@@ -554,18 +552,12 @@ function cmcreateiso() {
    fi
    lbl="$(cat "${dp}/isolinux/isolinux.cfg" | grep "LABEL=" | awk -F"LABEL=" {'print $2'} | awk {'print $1'} | grep -v "^$" | head -1 | tr -d "\n\r")"
    if [ "${CMOUT}" == "" ]; then
-      ver="$(cat "${dp}/isolinux/isolinux.cfg" | grep "LABEL=CentOS" | head -1 | awk -F"LABEL=CentOS-" {'print $2'} | awk -F"-x86_64" {'print $1'} | sed 's/\-/\./g')"
-      if [ "${ver}" == "8.BaseOS" ]; then
-         ver="8.0.1905"
-      elif [ "${ver}" == "Stream.8" ]; then
-         ver="8.0.20191219"
-      fi
-      out="CentOS-${ver}-x86_64-minimal.iso"
+      ver="$(cat "${dp}/isolinux/isolinux.cfg" | grep "LABEL=AlmaLinux" | head -1 | awk -F"LABEL=AlmaLinux-" {'print $2'} | awk -F"-x86_64" {'print $1'} | sed 's/\-/\./g')"
+      out="AlmaLinux-${ver}-x86_64-minimal.iso"
    fi
    echo " ~ Creating ISO image"
 
     echo '= mod bootloader start'
-
 
     set -e
     cp ks.cfg ${dp}/isolinux/
@@ -654,11 +646,11 @@ function cmjobquick() {
    cmisounmount
 }
 
-if [ ! -e /etc/centos-release ]; then
-   cmnotcentos
+if [ ! -e /etc/almalinux-release ]; then
+   cmnotrhel
 fi
-if [ "$(cat /etc/centos-release | grep "CentOS Linux release 8")" == "" ]; then
-   cmnotcentos
+if [ "$(cat /etc/almalinux-release | grep "AlmaLinux release 9")" == "" ]; then
+   cmnotrhel
 fi
 if [ ! -e "/usr/bin/repoquery" -o ! -e "/usr/bin/createrepo" -o ! -e "/usr/bin/yumdownloader" -o ! -e "/usr/bin/curl" -o ! -e "/usr/bin/mkisofs" ]; then
    echo
@@ -710,4 +702,3 @@ elif [ "${1}" == "step" ]; then
 else
    cmusage
 fi
-
