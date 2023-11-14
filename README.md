@@ -1,6 +1,6 @@
-# centos-8-minimal
+# almalinux-9-minimal
 
-A pure bash script to create **minimal installation ISO** image together with **additional packages**, leveraging one of official CentOS 8 ISO distribution.
+A pure bash script to create **minimal installation ISO** image together with **additional packages**, leveraging one of official AlmaLinux 9 ISO distribution.
 
 This will create an ISO image in the order of workflow shown below:
 
@@ -26,22 +26,22 @@ Hence, there are two main parts of this project:
 
   You can build the Dockerfile here and run it with a sample command.  Note that to retrieve your ISO after the container has finished creation, you must specify a mount point at `/mnt` during the container's execution in order to retrieve the file.  Additionally, privileged execution is required by the container to mount the ISO during the recreation process.
 
-  Example: `mkdir ./iso-out && docker build -t centos-8-minimal && docker run --privileged -v ./iso-out:/mnt centos-8-minimal` 
+  Example: `mkdir ./iso-out && docker build -t almalinux-9-minimal . && docker run --privileged -v ./iso-out:/mnt almalinux-9-minimal` 
 
 ### Requirements
 
-- CentOS 8
+- AlmaLinux 8
 
-  You can run script on CentOS 8 only (since it depends on CentOS 8 utilities).
+  You can run script on AlmaLinux 9 only (since it depends on AlmaLinux 9 utilities).
     
 - Some additional packages needs to be installed in order to run the script. Those can be installed by using the command below:
 
         yum -y install yum-utils createrepo syslinux genisoimage isomd5sum bzip2 curl file
 
-- One of the official ISO image of CentOS 8 distribution. Place it to same folder with the script.
+- One of the official ISO image of AlmaLinux 9 distribution. Place it to same folder with the script.
 
-        CentOS-8.X.XXXX-x86_64-boot.iso
-        CentOS-8.X.XXXX-x86_64-dvd1.iso
+        AlmaLinux-9.1-x86_64-boot.iso
+        AlmaLinux-9.1-x86_64-dvd.iso
 
 ### Synopsis
 
@@ -145,14 +145,14 @@ Again, dowloaded RPM files will be placed into "rpms/" folder for later use (and
 
    You can specify the reference ISO to be used with this variable like;
    
-        # CMISO="CentOS-8.1.1911-x86_64-boot.iso" ./bootstrap.sh run force
+        # CMISO="AlmaLinux-9.1-x86_64-boot.iso" ./bootstrap.sh run force
 
-   Script will use "CentOS-8.1.1911-x86\_64-boot.iso" by default if such variable is not given.
+   Script will use "AlmaLinux-9.1-x86\_64-boot.iso" by default if such variable is not given.
 - **CMOUT**="resulting iso filename"
 
    You can specify the name of resulting ISO file. For example;
    
-        # CMOUT="my-minimal-centos-8.iso" ./bootstrap.sh run force    
+        # CMOUT="my-minimal-almalinux-9.iso" ./bootstrap.sh run force    
 - **CMETH**=\<**fast** \| **deep**\>
 
    The "method" that will be used while resolving package dependencies. You can combine it with *CMVERBOSE* for debugging purposes.
@@ -171,7 +171,7 @@ Again, dowloaded RPM files will be placed into "rpms/" folder for later use (and
 
 - Group file template
 
-   The list of "core" packages which defined in "templ\_comps.xml" template file is obtained from the "BaseOS" group on official CentOS 8 DVD-ISO.
+   The list of "core" packages which defined in "templ\_comps.xml" template file is obtained from the "BaseOS" group on official AlmaLinux 9 DVD-ISO.
    
    First, its content will be used to collect required installation packages. Then, the list of packages specified in "package.txt" will be merged into it and will be used as group file to include in metadata of the resulting ISO.
    
@@ -189,8 +189,8 @@ Again, dowloaded RPM files will be placed into "rpms/" folder for later use (and
    
 - Other Template files
 
-   The template file "tepl\_treeinfo" is obtained from official CentOS 8 DVD-ISO (".treeinfo" is the original name) . It's content will be re-constructed according to the reference ISO you are going to use and the resulting file will be added into ISO template.
+   The template file "tepl\_treeinfo" is obtained from official AlmaLinux 9 DVD-ISO (".treeinfo" is the original name) . It's content will be re-constructed according to the reference ISO you are going to use and the resulting file will be added into ISO template.
    
-   Other template files (templ\_discinfo, templ\_media.repo) are obtained from official CentOS 8 DVD-ISO and they will be added into resulting ISO as it is.
+   Other template files (templ\_discinfo, templ\_media.repo) are obtained from official AlmaLinux 9 DVD-ISO and they will be added into resulting ISO as it is.
    
    
