@@ -19,7 +19,8 @@ RUN dnf -y swap curl-minimal curl && \
                     wget \
                     unzip && \
     curl -L -o ${ISO_NAME} ${ISO_URL}/${ISO_NAME} && \
-    chmod +x *.sh && \
-    ./create_iso_in_container.sh
+    chmod +x *.sh
+
+#    ./create_iso_in_container.sh
 
 CMD ["/bin/bash"]
