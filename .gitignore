@@ -1,4 +1,2 @@
-*~
-
-# .iso files
-.iso*
+# iso files
+*.iso
