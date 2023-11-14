@@ -1,10 +1,10 @@
 #!/bin/bash
 
-./bootstrap.sh clean
-./bootstrap.sh step isomount
-./bootstrap.sh step createtemplate
-./bootstrap.sh step scandeps
-./bootstrap.sh step createrepo
-./bootstrap.sh step createiso
-./bootstrap.sh step isounmount
-cp ./CentOS-8.1.1911-x86_64-minimal.iso /mnt/
+/workdir/bootstrap.sh clean
+/workdir/bootstrap.sh step isomount
+/workdir/bootstrap.sh step createtemplate
+/workdir/bootstrap.sh step scandeps
+/workdir/bootstrap.sh step createrepo
+/workdir/bootstrap.sh step createiso
+/workdir/bootstrap.sh step isounmount
+cp /workdir/AlmaLinux-9.1-x86_64-minimal.iso /mnt/
