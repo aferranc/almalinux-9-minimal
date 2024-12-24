@@ -1,2 +1,12 @@
 # iso files
 *.iso
+
+# temp files
+.dlrpm
+.pkgs
+.urls
+out.txt
+
+# temp dirs
+image/
+rpms/
