@@ -5,9 +5,8 @@ ENV ISO_URL="https://repo.almalinux.org/vault/9.1/isos/x86_64" \
 
 WORKDIR /workdir
 
-COPY *.sh templ_* ks.cfg packages*.txt ./
-
-RUN dnf -y swap curl-minimal curl && \
+RUN echo "sslverify=false" >> /etc/yum.conf && \
+    dnf -y swap curl-minimal curl && \
     dnf install -y  yum-utils \
                     createrepo \
                     syslinux \
@@ -18,9 +17,6 @@ RUN dnf -y swap curl-minimal curl && \
                     git \
                     wget \
                     unzip && \
-    curl -L -o ${ISO_NAME} ${ISO_URL}/${ISO_NAME} && \
-    chmod +x *.sh
-
-#    ./create_iso_in_container.sh
+    curl -k -L -o ${ISO_NAME} ${ISO_URL}/${ISO_NAME}
 
 CMD ["/bin/bash"]
