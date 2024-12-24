@@ -6,6 +6,7 @@
 .pkgs
 .urls
 out.txt
+packages.txt
 
 # temp dirs
 image/
