@@ -1,6 +1,51 @@
-net-tools
+#### base ####
+autofs
+bc
+chrony
+cryptsetup
+crypto-policies
+crypto-policies-scripts
+dialog
+dmidecode
+dracut-config-rescue
+efibootmgr
 ethtool
-# tcpdump
-# pciutils
-# wget
-# rsync
+grub2-efi
+grub2-efi-x64-modules
+grub2-pc-modules
+ipcalc
+java-11-openjdk-headless
+libicu
+libtool-ltdl
+libxslt
+logrotate
+lsof
+lz4
+lz4-libs
+nano
+nc
+net-tools
+nftables
+nginx
+nodejs
+pciutils
+perl
+perl-IO-Socket-SSL
+perl-libwww-perl
+plymouth
+plymouth-theme-charge
+postfix
+python39
+rsync
+rsyslog
+samba-client
+shim-x64
+smartmontools
+tar
+tcpdump
+telnet
+time
+traceroute
+unixODBC
+usbutils
+wget
