@@ -30,6 +30,14 @@ dp="${pw}/image"
 md="${pw}/mtemp"
 bo="${dp}/BaseOS"
 
+# Product name
+product="${PRODUCT:-LMS}"
+
+# Default distribution
+dist="${DISTRO:-Alma}"
+iso_ver="9.1"
+platform_version="p1"
+
 function cmusage() {
     echo "Usage: ${0} <run [force] | clean | debug [package [package ..]] | step ..>"
     echo
@@ -147,20 +155,46 @@ function cmcreatetemplate() {
     echo -n "."
     mkdir -p "${dp}"
     mkdir -p "${bo}/Packages"
+
     echo -n "."
     cp -r "${md}/EFI" "${dp}/"
     cmcheck
     echo -n "."
-
-    cp "templ_discinfo" "${dp}/.discinfo"
-    cp "templ_media.repo" "${dp}/media.repo"
+    cp "templates/discinfo.tpl" "${dp}/.discinfo"
+    cmcheck
+    echo -n "."
+    cp "templates/media.repo.tpl" "${dp}/media.repo"
+    cmcheck
     echo -n "."
     cp -r "${md}/isolinux" "${dp}/"
+    cmcheck
+    echo -n "."
+    cp "templates/isolinux.cfg.tpl" "${dp}/isolinux/isolinux.cfg"
+    cmcheck
+    echo -n "."
+    cp "templates/splash.png.tpl" "${dp}/isolinux/splash.png"
+    cmcheck
+    echo -n "."
+    sed -i "s/_PRODUCT_/${product^^}/g" "${dp}/isolinux/isolinux.cfg"
+    cmcheck
+    echo -n "."
+    sed -i "s/_DISTRIBUTION_INFO_/${dist} ${iso_ver}/g" "${dp}/isolinux/isolinux.cfg"
+    cmcheck
+    echo -n "."
+    cp "templates/syslinux.cfg.tpl" "${dp}/syslinux.cfg"
+    cmcheck
+    echo -n "."
+    cp "templates/grub.cfg.tpl" "${dp}/EFI/BOOT/grub.cfg"
+    cmcheck
+    echo -n "."
+    cp "templates/disk-layout.tpl" "${dp}/disk-layout"
+    cmcheck
     echo -n "."
     cp -r "${md}/images" "${dp}/"
     cmcheck
 
-    cp "templates/splash.png.tpl" "${dp}/isolinux/splash.png"
+    echo -n "."
+    cp -r "utils_LiveOS" "${dp}/"
     cmcheck
 
     rm -f "${dp}/.treeinfo"
@@ -181,7 +215,7 @@ function cmcreatetemplate() {
         else
             echo "${line}" >> "${dp}/.treeinfo"
         fi
-    done < "templ_treeinfo"
+    done < "templates/treeinfo.tpl"
     if [ -e "${md}/.treeinfo" ]; then
         ts="$(cat ${md}/.treeinfo | grep "timestamp = " | head -1 | awk -F"= " {'print $2'} | tr -d "\n\r")"
         if [ "${ts}" != "" ]; then
@@ -270,7 +304,7 @@ function cmcreatelist() {
     echo -n " ~ Creating package list "
     rm -f .core
     echo -n "."
-    cat templ_comps.xml | grep packagereq | awk -F">" {'print $2'} | awk -F"<" {'print $1'} > .core
+    cat templates/comps.xml.tpl | grep packagereq | awk -F">" {'print $2'} | awk -F"<" {'print $1'} > .core
     echo -n "."
     cat packages.txt | grep -v "^#" | grep -v "^$" >> .core
     echo " done"
@@ -535,7 +569,7 @@ function cmcreaterepo() {
         else
             echo "${xl}" >> "${uc}"
         fi
-    done < "${pw}/templ_comps.xml"
+    done < "${pw}/templates/comps.xml.tpl"
     echo " done"
     echo " ~ Creating repodata "
     cd "${bo}"
@@ -555,20 +589,19 @@ function cmcreateiso() {
         exit 1
     fi
     lbl="$(cat "${dp}/isolinux/isolinux.cfg" | grep "LABEL=" | awk -F"LABEL=" {'print $2'} | awk {'print $1'} | grep -v "^$" | head -1 | tr -d "\n\r")"
-    if [ "${CMOUT}" == "" ]; then
-        ver="$(cat "${dp}/isolinux/isolinux.cfg" | grep "LABEL=AlmaLinux" | head -1 | awk -F"LABEL=AlmaLinux-" {'print $2'} | awk -F"-x86_64" {'print $1'} | sed 's/\-/\./g')"
-        out="AlmaLinux-${ver}-x86_64-minimal.iso"
-    fi
+    out="${product^^}_${platform_version,,}-${dist}-${iso_ver}-x86_64.iso"
+
     echo " ~ Creating ISO image"
 
-        echo '= mod bootloader start'
-
-        set -e
-        cp ks.cfg ${dp}/isolinux/
-        sed -i '/linuxefi/s@$@ inst.ks=hd:LABEL='$lbl':/isolinux/ks.cfg@' ${dp}/EFI/BOOT/grub.cfg
-        sed -i '/initrd=initrd.img/s@$@ inst.ks=hd:LABEL='$lbl':/isolinux/ks.cfg@'  ${dp}/isolinux/isolinux.cfg
-        set +e
-        echo '= mod bootloader end'
+    echo '= mod bootloader start'
+    set -e
+    cp templates/ks.cfg.tpl ${dp}/isolinux/ks.cfg
+    sed -i '/linuxefi/s@$@ inst.ks=hd:LABEL='${lbl}':/isolinux/ks.cfg@' ${dp}/EFI/BOOT/grub.cfg
+    sed -i "s/_PRODUCT_/${product^^}/g" "${dp}/EFI/BOOT/grub.cfg"
+    sed -i "s/_DISTRIBUTION_INFO_/${dist} ${iso_ver}/g" "${dp}/EFI/BOOT/grub.cfg"
+    sed -i '/initrd=initrd.img/s@$@ inst.ks=hd:LABEL='$lbl':/isolinux/ks.cfg@'  ${dp}/isolinux/isolinux.cfg
+    set +e
+    echo '= mod bootloader end'
 
     cd "${dp}"
     chmod 664 isolinux/isolinux.bin
@@ -600,6 +633,7 @@ function cmcreateiso() {
     cd "${pw}"
     isz="$(du -h "${out}" | awk {'print $1'})"
     echo " ~ ISO image ready: ${out} (${isz})"
+    echo "ISO_NAME=${out}" > out.txt
 }
 
 function cmjobsingle() {
